@@ -2,6 +2,9 @@
 
 #include "sparse_matrix.h"
 
+#include <functional>   // std::minus
+#include <numeric> 
+
 SurfacePatch::SurfacePatch( const std::vector<Tri>& triangles_, 
                             const std::vector<Vector3>& vertices_,
                             const std::vector<TriBool>& boundaryEdges_,

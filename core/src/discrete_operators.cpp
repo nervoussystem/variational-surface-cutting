@@ -2,7 +2,7 @@
 
 namespace GC {
 
-    using namespace Eigen;
+    //using namespace Eigen;
 
     // Hodge star on 0-forms. Returns a (nVerts, nVerts) matrix.
     template<typename T, typename D>

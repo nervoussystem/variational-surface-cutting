@@ -17,11 +17,11 @@ using std::cout;
 using std::endl;
 using std::cerr;
 
-using namespace Eigen;
+//using namespace Eigen;
 
 template <typename T>
-Matrix<T, Dynamic, 1> smallestEigenvectorPositiveDefinite(SparseMatrix<T, ColMajor> &energyMatrix,
-                                                          SparseMatrix<T> &massMatrix, unsigned int nIterations) {
+Eigen::Matrix<T, Eigen::Dynamic, 1> smallestEigenvectorPositiveDefinite(Eigen::SparseMatrix<T, Eigen::ColMajor> &energyMatrix,
+                                                          Eigen::SparseMatrix<T> &massMatrix, unsigned int nIterations) {
     START_TIMING(solver)
     unsigned int N = energyMatrix.rows();
 
@@ -41,15 +41,15 @@ Matrix<T, Dynamic, 1> smallestEigenvectorPositiveDefinite(SparseMatrix<T, ColMaj
     // Random initial vector
     // Eigen uses system rand without seeding it, so this unless you seed it the behavior here will be deterministic.
     // When debugging this is a feature rather than a bug.
-    Matrix<T, Dynamic, 1> u = Matrix<T, Dynamic, 1>::Random(N);
+	Eigen::Matrix<T, Eigen::Dynamic, 1> u = Eigen::Matrix<T, Eigen::Dynamic, 1>::Random(N);
 
     // Compress the matrices and factor the energy matrix for faster solve
     std::cout << "  -- Factoring matrix " << std::endl;
     energyMatrix.makeCompressed();
     massMatrix.makeCompressed();
-    SimplicialLDLT<SparseMatrix<T, ColMajor>> solver;
+	Eigen::SimplicialLDLT<Eigen::SparseMatrix<T, Eigen::ColMajor>> solver;
     solver.compute(energyMatrix);
-    if (solver.info() != Success) {
+    if (solver.info() != Eigen::Success) {
         std::cerr << "Solver factorize error: " << solver.info() << std::endl;
         throw std::invalid_argument("Solver factorization failed");
     }
@@ -58,8 +58,8 @@ Matrix<T, Dynamic, 1> smallestEigenvectorPositiveDefinite(SparseMatrix<T, ColMaj
     std::cout << "  -- Performing " << nIterations << " inverse power iterations" << std::endl;
     for (unsigned int iIter = 0; iIter < nIterations; iIter++) {
         // Solve
-        Matrix<T, Dynamic, 1> x = solver.solve(massMatrix * u);
-        if (solver.info() != Success) {
+		Eigen::Matrix<T, Eigen::Dynamic, 1> x = solver.solve(massMatrix * u);
+        if (solver.info() != Eigen::Success) {
             std::cerr << "Solver error: " << solver.info() << std::endl;
             throw std::invalid_argument("Solve failed");
         }
@@ -79,10 +79,10 @@ Matrix<T, Dynamic, 1> smallestEigenvectorPositiveDefinite(SparseMatrix<T, ColMaj
 
     return u;
 }
-template VectorXd smallestEigenvectorPositiveDefinite(SparseMatrix<double, ColMajor> &energyMatrix,
-                                                      SparseMatrix<double> &massMatrix, unsigned int nIterations);
-template VectorXcd smallestEigenvectorPositiveDefinite(SparseMatrix<std::complex<double>, ColMajor> &energyMatrix,
-                                                       SparseMatrix<std::complex<double>> &massMatrix,
+template Eigen::VectorXd smallestEigenvectorPositiveDefinite(Eigen::SparseMatrix<double, Eigen::ColMajor> &energyMatrix,
+                                                      Eigen::SparseMatrix<double> &massMatrix, unsigned int nIterations);
+template Eigen::VectorXcd smallestEigenvectorPositiveDefinite(Eigen::SparseMatrix<std::complex<double>, Eigen::ColMajor> &energyMatrix,
+                                                       Eigen::SparseMatrix<std::complex<double>> &massMatrix,
                                                        unsigned int nIterations);
 
 
@@ -107,7 +107,7 @@ Eigen::Matrix<T, Eigen::Dynamic, 1> solve(Eigen::SparseMatrix<T, Eigen::ColMajor
 
     // Call the best solver we have
 #ifdef HAVE_SUITESPARSE
-    Matrix<T, Dynamic, 1> x = solve_SPQR(A, b);
+	Eigen::Matrix<T, Eigen::Dynamic, 1> x = solve_SPQR(A, b);
 #else
     Matrix<T, Dynamic, 1> x = solve_EigenQR(A, b);
 #endif
@@ -116,8 +116,8 @@ Eigen::Matrix<T, Eigen::Dynamic, 1> solve(Eigen::SparseMatrix<T, Eigen::ColMajor
 
     return x;
 }
-template VectorXd solve(SparseMatrix<double, Eigen::ColMajor> &A, VectorXd &b);
-template VectorXcd solve(SparseMatrix<std::complex<double>, Eigen::ColMajor> &A, VectorXcd &b);
+template Eigen::VectorXd solve(Eigen::SparseMatrix<double, Eigen::ColMajor> &A, Eigen::VectorXd &b);
+template Eigen::VectorXcd solve(Eigen::SparseMatrix<std::complex<double>, Eigen::ColMajor> &A, Eigen::VectorXcd &b);
 
 template <typename T>
 Eigen::Matrix<T, Eigen::Dynamic, 1> solveSquare(Eigen::SparseMatrix<T, Eigen::ColMajor> &A,
@@ -149,7 +149,7 @@ Eigen::Matrix<T, Eigen::Dynamic, 1> solveSquare(Eigen::SparseMatrix<T, Eigen::Co
 
     // Solve
     std::cout << "  -- Solving system" << std::endl;
-    Matrix<T, Dynamic, 1> x = solver.solve(b);
+	Eigen::Matrix<T, Eigen::Dynamic, 1> x = solver.solve(b);
     if (solver.info() != Eigen::Success) {
         std::cerr << "Solver error: " << solver.info() << std::endl;
         std::cerr << "Solver says: " << solver.lastErrorMessage() << std::endl;
@@ -158,7 +158,7 @@ Eigen::Matrix<T, Eigen::Dynamic, 1> solveSquare(Eigen::SparseMatrix<T, Eigen::Co
     std::cout << "  -- Solve complete" << std::endl;
 
     // Compute residual to spot bad solves
-    Matrix<T, Dynamic, 1> residual = A * x - b;
+	Eigen::Matrix<T, Eigen::Dynamic, 1> residual = A * x - b;
     double residualNorm = residual.norm();
     double relativeResidualNorm = residualNorm / b.norm();
     std::cout << "  -- Residual norm: " << residualNorm << "   relative residual norm: " << relativeResidualNorm
@@ -168,8 +168,8 @@ Eigen::Matrix<T, Eigen::Dynamic, 1> solveSquare(Eigen::SparseMatrix<T, Eigen::Co
 
     return x;
 }
-template VectorXd solveSquare(SparseMatrix<double, Eigen::ColMajor> &A, VectorXd &b);
-template VectorXcd solveSquare(SparseMatrix<std::complex<double>, Eigen::ColMajor> &A, VectorXcd &b);
+template Eigen::VectorXd solveSquare(Eigen::SparseMatrix<double, Eigen::ColMajor> &A, Eigen::VectorXd &b);
+template Eigen::VectorXcd solveSquare(Eigen::SparseMatrix<std::complex<double>, Eigen::ColMajor> &A, Eigen::VectorXcd &b);
 
 template <typename T>
 Eigen::Matrix<T, Eigen::Dynamic, 1> solvePositiveDefinite(Eigen::SparseMatrix<T, Eigen::ColMajor> &A,
@@ -201,7 +201,7 @@ Eigen::Matrix<T, Eigen::Dynamic, 1> solvePositiveDefinite(Eigen::SparseMatrix<T,
 
     // Solve
     std::cout << "  -- Solving system" << std::endl;
-    Matrix<T, Dynamic, 1> x = solver.solve(b);
+	Eigen::Matrix<T, Eigen::Dynamic, 1> x = solver.solve(b);
     if (solver.info() != Eigen::Success) {
         std::cerr << "Solver error: " << solver.info() << std::endl;
         // std::cerr << "Solver says: " << solver.lastErrorMessage() << std::endl;
@@ -210,7 +210,7 @@ Eigen::Matrix<T, Eigen::Dynamic, 1> solvePositiveDefinite(Eigen::SparseMatrix<T,
     std::cout << "  -- Solve complete" << std::endl;
 
     // Compute residual to spot bad solves
-    Matrix<T, Dynamic, 1> residual = A * x - b;
+	Eigen::Matrix<T, Eigen::Dynamic, 1> residual = A * x - b;
     double residualNorm = residual.norm();
     double relativeResidualNorm = residualNorm / b.norm();
     std::cout << "  -- Residual norm: " << residualNorm << "   relative residual norm: " << relativeResidualNorm
@@ -221,8 +221,8 @@ Eigen::Matrix<T, Eigen::Dynamic, 1> solvePositiveDefinite(Eigen::SparseMatrix<T,
     return x;
 
 }
-template VectorXd solvePositiveDefinite(SparseMatrix<double, Eigen::ColMajor> &A, VectorXd &b);
-template VectorXcd solvePositiveDefinite(SparseMatrix<std::complex<double>, Eigen::ColMajor> &A, VectorXcd &b);
+template Eigen::VectorXd solvePositiveDefinite(Eigen::SparseMatrix<double, Eigen::ColMajor> &A, Eigen::VectorXd &b);
+template Eigen::VectorXcd solvePositiveDefinite(Eigen::SparseMatrix<std::complex<double>, Eigen::ColMajor> &A, Eigen::VectorXcd &b);
 
 
 
@@ -292,7 +292,7 @@ Eigen::Matrix<T, Eigen::Dynamic, 1> solve_SPQR(Eigen::SparseMatrix<T, Eigen::Col
 
     // Solve
     std::cout << "  -- Solving system" << std::endl;
-    Matrix<T, Dynamic, 1> x = solver.solve(b);
+	Eigen::Matrix<T, Eigen::Dynamic, 1> x = solver.solve(b);
     if (solver.info() != Eigen::Success) {
         std::cerr << "Solver error: " << solver.info() << std::endl;
         throw std::invalid_argument("Solve failed");
@@ -300,7 +300,7 @@ Eigen::Matrix<T, Eigen::Dynamic, 1> solve_SPQR(Eigen::SparseMatrix<T, Eigen::Col
     std::cout << "  -- Solve complete" << std::endl;
 
     // Compute residual to spot bad solves
-    Matrix<T, Dynamic, 1> residual = A * x - b;
+	Eigen::Matrix<T, Eigen::Dynamic, 1> residual = A * x - b;
     double residualNorm = residual.norm();
     double relativeResidualNorm = residualNorm / b.norm();
     std::cout << "  -- Residual norm: " << residualNorm << "   relative residual norm: " << relativeResidualNorm

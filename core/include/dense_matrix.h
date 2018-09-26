@@ -85,7 +85,7 @@ namespace GC
          size_t length( void ) const;
          // returns the size of the largest dimension
 
-         void zero( const T& val = 0. );
+         void zero( const T& val = 0 );
          // sets all elements to val
 
          double norm( NormType type = lInfinity ) const;

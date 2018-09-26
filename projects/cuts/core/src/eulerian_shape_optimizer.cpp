@@ -414,7 +414,7 @@ void EulerianShapeOptimizer::ensureHaveVisibilityFraction() {
             visibilityCasted = true;
         } else {
             // visibilityFraction = computeVisibilityFraction(geometry);
-            visibilityFraction = computeVisibilityFraction(geometry, 20, true);
+            //visibilityFraction = computeVisibilityFraction(geometry, 20, true);
             visibilityCasted = true;
         }
     }
@@ -1248,7 +1248,7 @@ void EulerianShapeOptimizer::copyFeatureSizeToPatchMeshes() {
 void EulerianShapeOptimizer::solveYamabeProblems() {
 
     #pragma omp parallel for
-    for(size_t iP = 0; iP < patches.size(); iP++) {
+    for(int iP = 0; iP < patches.size(); iP++) {
         SurfacePatch* p = patches[iP];
         p->solveYamabeProblem();
 
@@ -1400,7 +1400,7 @@ void EulerianShapeOptimizer::addBoundaryGradientTermDirichletDistortion() {
     if(pinPatchMode) {
 
         // #pragma omp parallel for
-        for(size_t iP = 0; iP < patches.size(); iP++) {
+        for(int iP = 0; iP < patches.size(); iP++) {
             SurfacePatch* p = patches[iP];
             if(p->iRegion == 0) {
                 p->addDirichletDistortionGradient(weightDirichletDistortion, localScaleDirichletDistortion);
@@ -1409,7 +1409,7 @@ void EulerianShapeOptimizer::addBoundaryGradientTermDirichletDistortion() {
 
     } else {
         #pragma omp parallel for
-        for(size_t iP = 0; iP < patches.size(); iP++) {
+        for(int iP = 0; iP < patches.size(); iP++) {
             SurfacePatch* p = patches[iP];
             p->addDirichletDistortionGradient(weightDirichletDistortion, localScaleDirichletDistortion);
         }
@@ -1424,7 +1424,7 @@ void EulerianShapeOptimizer::addBoundaryGradientTermHenckyDistortion() {
     ensureHaveYamabeSolution();
 
     // #pragma omp parallel for
-    for(size_t iP = 0; iP < patches.size(); iP++) {
+    for(int iP = 0; iP < patches.size(); iP++) {
         SurfacePatch* p = patches[iP];
         p->addHenckyDistortionGradient(1000 * weightHenckyDistortion);
     }
