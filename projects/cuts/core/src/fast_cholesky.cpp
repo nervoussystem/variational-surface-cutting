@@ -172,7 +172,7 @@ void FastCholesky::factor() {
     cholmod_l_factorize(mat, factorization, &common);
 
     auto factorTime = FINISH_TIMING(factor);
-    cout << "[FastCholesky] Factorization took " << pretty_time(factorTime) << endl;
+    //cout << "[FastCholesky] Factorization took " << pretty_time(factorTime) << endl;
     
     phase++;    
 }
@@ -211,7 +211,7 @@ DenseVector<double> FastCholesky::solve(const DenseVector<double>& rhs) {
             rhsMax = std::max(rhsMax, std::abs(rhsPtr[i]));
         }
 
-        cout << "[FastCholesky] Relative residual = " << (resMax / rhsMax) << endl;
+        //cout << "[FastCholesky] Relative residual = " << (resMax / rhsMax) << endl;
         cholmod_l_free_dense(&Ax, &common);
     }
 
@@ -226,7 +226,7 @@ DenseVector<double> FastCholesky::solve(const DenseVector<double>& rhs) {
     cholmod_l_free_dense(&xC, &common);
     
     auto solveTime = FINISH_TIMING(solve);
-    cout << "[FastCholesky] Solve took " << pretty_time(solveTime) << endl;
+    //cout << "[FastCholesky] Solve took " << pretty_time(solveTime) << endl;
 
     return x;
 }
